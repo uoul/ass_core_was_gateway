@@ -5,6 +5,9 @@ import io.quarkus.runtime.StartupEvent;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+import javax.websocket.ContainerProvider;
+import javax.websocket.Session;
+import java.net.URI;
 
 @ApplicationScoped
 public class WasGateway {
