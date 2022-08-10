@@ -1,4 +1,4 @@
-package ass.core.BusinessObjects;
+package ass.core.businessobject;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

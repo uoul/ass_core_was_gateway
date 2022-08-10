@@ -1,6 +1,9 @@
 package ass.core;
 
-import ass.core.BusinessObjects.AlertMsg;
+import ass.core.businessobject.AlertMsg;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.logging.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -84,5 +87,15 @@ public class WasXmlInterpreter {
             e.printStackTrace();
         }
         return msgs;
+    }
+
+    public static String parseToJson(Vector<AlertMsg> msgs) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(msgs);
+        } catch (JsonProcessingException e) {
+            Log.error(e);
+            return "";
+        }
     }
 }
