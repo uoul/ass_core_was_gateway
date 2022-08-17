@@ -6,7 +6,6 @@ import io.quarkus.runtime.StartupEvent;
 import io.vertx.core.Vertx;
 import org.eclipse.microprofile.config.ConfigProvider;
 
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;

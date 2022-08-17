@@ -13,7 +13,7 @@ public class ActiveAlertsProducer {
     @Channel("active_alerts_out")
     Emitter<String> emitter;
 
-    @ConsumeEvent(value = "alerts")
+    @ConsumeEvent(value = "currentAlertsChanged")
     void consumeAlerts(String alerts) {
         emitter.send(alerts);
     }
