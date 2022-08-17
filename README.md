@@ -1,5 +1,5 @@
 # WAS Gateway
-The *WAS Gateway* fetch the current alerts from the **Alu2G** endpoint and fires messages
+The *WAS Gateway* fetches the current alerts from the **Alu2G** endpoint and fires messages
 to the configured RabbitMQ broker if the polled message has changed.
 > **_NOTE:_** per **ASS** environment should run exactly one message source container
 > that produces alertmessages on RabbitMQ exchange!
