@@ -5,6 +5,7 @@ import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import io.vertx.core.Vertx;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -16,8 +17,14 @@ public class WasGateway {
     @Inject
     Vertx vertx;
 
+    @ConfigProperty(name = "was.ip")
+    String wasIp;
+
+    @ConfigProperty(name = "was.port")
+    Integer wasPort;
+
     void onStart(@Observes StartupEvent ev) {
-        vertx.deployVerticle(new WasSocketVerticle(ConfigProvider.getConfig().getValue("was.ip", String.class), ConfigProvider.getConfig().getValue("was.port", Integer.class)));
+        vertx.deployVerticle(new WasSocketVerticle(wasIp, wasPort));
     }
 
     void onStop(@Observes ShutdownEvent ev) {
