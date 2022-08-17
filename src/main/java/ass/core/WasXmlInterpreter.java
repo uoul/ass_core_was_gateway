@@ -1,9 +1,6 @@
 package ass.core;
 
-import ass.core.businessobject.AlertMsg;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.logging.Log;
+import ass.core.businessobject.AlertMessages;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -15,11 +12,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WasXmlInterpreter {
-    public static Vector<AlertMsg> parseXmlToAlertMgs(String xml) {
-        Vector<AlertMsg> msgs = new Vector<>();
+    public static AlertMessages parseXmlToAlertMgs(String xml) {
+        AlertMessages msgs = AlertMessages.builder().build();
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document document = builder.parse(new InputSource(new StringReader(xml)));
@@ -27,14 +25,14 @@ public class WasXmlInterpreter {
             NodeList orderList = document.getElementsByTagName("order");
             // iterate over all orders -> build them
             for (int i = 0; i < orderList.getLength(); i++) {
-                AlertMsg msg = AlertMsg.builder().build();
+                AlertMessages.AlertMessage msg = AlertMessages.AlertMessage.builder().build();
                 NodeList currentOrder = orderList.item(i).getChildNodes();
                 for (int j = 0; j < currentOrder.getLength(); j++) {
                     if (currentOrder.item(j).getNodeType() == Node.ELEMENT_NODE) {
                         String currentNodeVal = currentOrder.item(j).getTextContent();
                         switch (currentOrder.item(j).getNodeName()) {
                             case "key" -> msg.setKey(currentNodeVal);
-                            case "origin" -> msg.setOrigin(AlertMsg.Origin.builder()
+                            case "origin" -> msg.setOrigin(AlertMessages.AlertMessage.Origin.builder()
                                     .tid(Integer.parseInt(currentOrder.item(j).getAttributes().getNamedItem("tid").getNodeValue()))
                                     .name(currentNodeVal)
                                     .build());
@@ -51,11 +49,11 @@ public class WasXmlInterpreter {
                             case "watch-out-tad" -> msg.setWatchOutTad(currentNodeVal);
                             case "finished-tad" -> msg.setFinishedTad(currentNodeVal);
                             case "destination-list" -> {
-                                Vector<AlertMsg.Destination> destinations = new Vector<>();
+                                List<AlertMessages.AlertMessage.Destination> destinations = new ArrayList<>();
                                 for (int k = 0; k < currentOrder.item(j).getChildNodes().getLength(); k++) {
                                     if (currentOrder.item(j).getChildNodes().item(k).getNodeType() == Node.ELEMENT_NODE) {
                                         Node destinationNode = currentOrder.item(j).getChildNodes().item(k);
-                                        destinations.add(AlertMsg.Destination.builder()
+                                        destinations.add(AlertMessages.AlertMessage.Destination.builder()
                                                 .index(Integer.parseInt(destinationNode.getAttributes().getNamedItem("index").getNodeValue()))
                                                 .id(Integer.parseInt(destinationNode.getAttributes().getNamedItem("id").getNodeValue()))
                                                 .name(destinationNode.getTextContent())
@@ -65,11 +63,11 @@ public class WasXmlInterpreter {
                                 msg.setDestinations(destinations);
                             }
                             case "paging-destination-list" -> {
-                                Vector<AlertMsg.Destination> destinations = new Vector<>();
+                                List<AlertMessages.AlertMessage.Destination> destinations = new ArrayList<>();
                                 for (int k = 0; k < currentOrder.item(j).getChildNodes().getLength(); k++) {
                                     if (currentOrder.item(j).getChildNodes().item(k).getNodeType() == Node.ELEMENT_NODE) {
                                         Node destinationNode = currentOrder.item(j).getChildNodes().item(k);
-                                        destinations.add(AlertMsg.Destination.builder()
+                                        destinations.add(AlertMessages.AlertMessage.Destination.builder()
                                                 .index(Integer.parseInt(destinationNode.getAttributes().getNamedItem("index").getNodeValue()))
                                                 .id(Integer.parseInt(destinationNode.getAttributes().getNamedItem("id").getNodeValue()))
                                                 .name(destinationNode.getTextContent())
@@ -81,21 +79,11 @@ public class WasXmlInterpreter {
                         }
                     }
                 }
-                msgs.add(msg);
+                msgs.getAlertMessages().add(msg);
             }
         } catch (ParserConfigurationException | IOException | SAXException e) {
             e.printStackTrace();
         }
         return msgs;
-    }
-
-    public static String parseToJson(Vector<AlertMsg> msgs) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(msgs);
-        } catch (JsonProcessingException e) {
-            Log.error(e);
-            return "";
-        }
     }
 }

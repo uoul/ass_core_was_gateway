@@ -1,15 +1,12 @@
 package ass.core.verticle;
 
 import ass.core.WasXmlInterpreter;
-import ass.core.businessobject.AlertMsg;
 import io.quarkus.logging.Log;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetSocket;
 
-import java.util.HashSet;
-import java.util.Vector;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class WasSocketVerticle extends AbstractVerticle {
@@ -35,7 +32,7 @@ public class WasSocketVerticle extends AbstractVerticle {
                 socket.handler(buffer -> {
                     msg.set(msg.get() + buffer.getString(0, buffer.length()));
                     if (msg.get().contains("</pdu>")) {
-                        vertx.eventBus().publish("currentAlerts", WasXmlInterpreter.parseToJson(WasXmlInterpreter.parseXmlToAlertMgs(msg.get())));
+                        vertx.eventBus().publish("currentAlerts", WasXmlInterpreter.parseXmlToAlertMgs(msg.get()).toJson());
                         msg.set("");
                         vertx.setTimer(11000, timerId -> {
                             socket.write("GET_MESSAGE\n");
