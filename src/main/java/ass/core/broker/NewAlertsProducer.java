@@ -8,13 +8,14 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class ActiveAlertsProducer {
+public class NewAlertsProducer {
+
     @Inject
-    @Channel("active_alerts_out")
+    @Channel("new_alerts_out")
     Emitter<String> emitter;
 
-    @ConsumeEvent(value = "activeAlerts")
-    void consumeAlerts(String alerts) {
-        emitter.send(alerts);
+    @ConsumeEvent("newAlerts")
+    void consumeAlerts(String newAlerts) {
+        emitter.send(newAlerts);
     }
 }
