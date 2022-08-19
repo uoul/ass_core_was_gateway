@@ -27,7 +27,7 @@ jobs:
       - name: Publish to Docker Hub
         uses: docker/build-push-action@v1
         with:
-          file: ./src/main/docker/Dockerfile.jvm
+          dockerfile: ./src/main/docker/Dockerfile.jvm
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
           repository: uoul/ass-core-was_gateway
