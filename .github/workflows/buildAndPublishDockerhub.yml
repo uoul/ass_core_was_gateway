@@ -31,4 +31,4 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
           repository: uoul/ass-core-was_gateway
-          tags: ${{github.run_number}}
+          tags: latest
