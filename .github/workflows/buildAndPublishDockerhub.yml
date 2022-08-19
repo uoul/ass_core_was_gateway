@@ -1,0 +1,34 @@
+name: Build and Publish Docker Image
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1 - Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2 - Setup JDK for build
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      # Step 3 - Build package
+      - name: Build with Maven
+        run: mvn clean package
+
+      # Step 4 - Build docker and push to Dockerhub
+      - name: Publish to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          file: ./src/main/docker/Dockerfile.jvm
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          repository: uoul/ass-core-was_gateway
+          tags: ${{github.run_number}}
