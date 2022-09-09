@@ -2,6 +2,7 @@ package ass.core.verticle;
 
 import ass.core.WasXmlInterpreter;
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.Quarkus;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
@@ -27,7 +28,7 @@ public class WasSocketVerticle extends AbstractVerticle {
         tcpClient.connect(wasPort, wasHost, res -> {
             if (res.succeeded()) {
                 NetSocket socket = res.result();
-                Log.info("Connected to WAS-Host: " + wasHost + " Port: " + wasPort);
+                Log.info(String.format("Connected to WAS_HOST: %s WAS_PORT: %d", wasHost, wasPort));
                 socket.write("GET_MESSAGE\n");
                 socket.handler(buffer -> {
                     msg.set(msg.get() + buffer.getString(0, buffer.length()));
@@ -39,8 +40,13 @@ public class WasSocketVerticle extends AbstractVerticle {
                         });
                     }
                 });
+                socket.closeHandler((closeResult) -> {
+                    Log.error(String.format("Connection to WAS has been closed! - WAS_HOST: %s WAS_PORT: %d", wasHost, wasPort));
+                    Quarkus.asyncExit(1);
+                });
             } else {
-                Log.error("Cannot connect to Host: " + wasHost + " Port: " + wasPort);
+                Log.error(String.format("Cannot connect to WAS - WAS_HOST: %s WAS_PORT: %d", wasHost, wasPort));
+                Quarkus.asyncExit(1);
             }
         });
     }
