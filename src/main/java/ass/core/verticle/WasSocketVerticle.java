@@ -13,18 +13,15 @@ import java.util.concurrent.atomic.AtomicReference;
 public class WasSocketVerticle extends AbstractVerticle {
     private final String wasHost;
     private final int wasPort;
+    private final AtomicReference<String> msg = new AtomicReference<>("");
+    private NetClient tcpClient;
 
     public WasSocketVerticle(String wasHost, Integer wasPort) {
         this.wasHost = wasHost;
         this.wasPort = wasPort;
     }
 
-    @Override
-    public void start() {
-        AtomicReference<String> msg = new AtomicReference<>("");
-        NetClientOptions options = new NetClientOptions()
-                .setReconnectAttempts(5);
-        NetClient tcpClient = vertx.createNetClient(options);
+    void startWasSocket() {
         tcpClient.connect(wasPort, wasHost, res -> {
             if (res.succeeded()) {
                 NetSocket socket = res.result();
@@ -42,13 +39,21 @@ public class WasSocketVerticle extends AbstractVerticle {
                 });
                 socket.closeHandler((closeResult) -> {
                     Log.error(String.format("Connection to WAS has been closed! - WAS_HOST: %s WAS_PORT: %d", wasHost, wasPort));
-                    Quarkus.asyncExit(1);
+                    startWasSocket();
                 });
             } else {
                 Log.error(String.format("Cannot connect to WAS - WAS_HOST: %s WAS_PORT: %d", wasHost, wasPort));
                 Quarkus.asyncExit(1);
             }
         });
+    }
+
+    @Override
+    public void start() {
+        NetClientOptions options = new NetClientOptions()
+                .setReconnectAttempts(10);
+        tcpClient = vertx.createNetClient(options);
+        startWasSocket();
     }
 
     @Override
