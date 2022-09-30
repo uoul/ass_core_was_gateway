@@ -39,11 +39,11 @@ public class WasSocketVerticle extends AbstractVerticle {
                 });
                 socket.closeHandler((closeResult) -> {
                     Log.error(String.format("Connection to WAS has been closed! - WAS_HOST: %s WAS_PORT: %d", wasHost, wasPort));
-                    Quarkus.asyncExit(-1);
+                    Quarkus.asyncExit(1);
                 });
             } else {
                 Log.error(String.format("Cannot connect to WAS - WAS_HOST: %s WAS_PORT: %d", wasHost, wasPort));
-                Quarkus.asyncExit(-1);
+                Quarkus.asyncExit(1);
             }
         });
     }
