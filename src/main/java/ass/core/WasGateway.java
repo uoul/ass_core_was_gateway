@@ -23,6 +23,7 @@ public class WasGateway {
     Integer wasPort;
 
     void onStart(@Observes StartupEvent ev) {
+
         vertx.deployVerticle(new WasSocketVerticle(wasIp, wasPort));
     }
 

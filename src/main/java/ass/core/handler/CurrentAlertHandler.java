@@ -1,20 +1,50 @@
 package ass.core.handler;
 
 import ass.core.businessobject.AlertMessages;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import io.quarkus.vertx.ConsumeEvent;
 import io.vertx.core.Vertx;
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.logging.Logger;
 
 @ApplicationScoped
 public class CurrentAlertHandler {
-    private AlertMessages alertMsgsBackup = AlertMessages.builder().build();
+    private AlertMessages alertMsgsBackup;
     @Inject
     Vertx vertx;
+
+    public CurrentAlertHandler() {
+        try {
+            String alertsStateStr = Files.readString(Paths.get(ConfigProvider.getConfig().getValue("state.path", String.class) + "/currentAlerts.json"));
+            ObjectMapper mapper = new ObjectMapper();
+            alertMsgsBackup = mapper.readValue(alertsStateStr, AlertMessages.class);
+        } catch (IOException e) {
+            alertMsgsBackup = AlertMessages.builder().build();
+        }
+    }
+
+    @ConfigProperty(name = "state.path")
+    String statePath;
+
+    private void writeAlertsToFile(AlertMessages alertMessages, String filePath){
+        try {
+            Writer fileWriter = new FileWriter(filePath, false); //overwrites file
+            fileWriter.write(alertMessages.toJson());
+            fileWriter.close();
+        } catch (IOException e) {
+            Log.error("Unable to write statefile! - " + e.getMessage());
+        }
+    }
 
     @ConsumeEvent(value = "currentAlerts")
     public void calcChanges (String currentAlertsStr) {
@@ -37,6 +67,7 @@ public class CurrentAlertHandler {
             Log.info("Old: " + alertMsgsBackup.toJson());
             Log.info("New: " + currentAlerts.toJson());
             vertx.eventBus().publish("activeAlerts", currentAlerts.toJson());
+            writeAlertsToFile(currentAlerts, statePath + "/currentAlerts.json");
             alertMsgsBackup = currentAlerts;
         }
     }
