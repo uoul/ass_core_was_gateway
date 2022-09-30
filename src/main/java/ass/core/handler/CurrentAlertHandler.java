@@ -50,9 +50,6 @@ public class CurrentAlertHandler {
     public void calcChanges (String currentAlertsStr) {
         AlertMessages currentAlerts = AlertMessages.fromJson(currentAlertsStr);
 
-        Log.info("Backup: " + alertMsgsBackup.toJson());
-        Log.info("current: " + currentAlerts.toJson());
-
         // Send new alerts to RabbitMQ
         AlertMessages newAlerts = AlertMessages.builder().build();
         currentAlerts.getAlertMessages().forEach(msg -> {
