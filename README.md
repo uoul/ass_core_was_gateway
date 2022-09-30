@@ -6,6 +6,9 @@ to the configured RabbitMQ broker if the polled message has changed. The message
 > **_NOTE:_** per **ASS** environment should run exactly one message source container
 > that produces alertmessages on RabbitMQ exchange!
 
+## Prerequisite
+* Filepath, for storing current state (currentAlarmMsgs)
+
 ## Configuration
 The entire configuration can be done via environment variables. The following settings
 can be used:
@@ -21,5 +24,5 @@ can be used:
 | _RABBITMQ_NEW_EXCHANGE_    | NewAlerts         | If there are new alerts available, only the new ones will be pushed to this exchange |
 | _WAS_HOST_                 | 192.168.130.100   | Alu2G host                                                                           |
 | _WAS_PORT_                 | 47000             | Port of Alu2G endpoint                                                               |
-
+| _WAS_GATEWAY_STATEPATH_    | /media/state      | The Path, to store current state                                                     |
 > **_NOTE:_** Usually the default configuration should be set correct for your environment!
